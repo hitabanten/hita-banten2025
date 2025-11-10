@@ -1,29 +1,26 @@
-import nextMDX from '@next/mdx';
+import createMDX from '@next/mdx'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Tambahkan ekstensi .mdx ke pageExtensions agar Next.js meroutingnya
-  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*',
+      }
+    ],
   },
-  
-  // Opsi eksperimental mdxRs dapat memberikan performa lebih baik,
-  // tetapi ini opsional dan bisa dihapus jika menimbulkan masalah.
-  // experimental: {
-  //   mdxRs: true,
-  // },
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
 }
 
-// Bungkus konfigurasi Next.js dengan fungsi nextMDX.
-const withMDX = nextMDX({
-  // Anda dapat menambahkan opsi MDX di sini jika diperlukan (misalnya remarkPlugins)
+const withMDX = createMDX({
   options: {
-    // Misalnya, untuk menonaktifkan fitur tertentu:
-    // remarkPlugins: [],
-    // rehypePlugins: [],
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [[rehypeRaw, { passThrough: ['mdxJsxFlowElement'] }]],
+    providerImportSource: "@mdx-js/react",
   },
 })
 
-export default withMDX(nextConfig);
+export default withMDX(nextConfig)

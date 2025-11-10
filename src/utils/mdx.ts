@@ -1,27 +1,42 @@
-import fs from 'fs';
-import path from 'path';
-import { serialize } from 'next-mdx-remote/serialize';
-import matter from 'gray-matter';
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
+import { compileMDX } from 'next-mdx-remote/rsc'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
-const ARTICLES_PATH = path.join(process.cwd(), 'public', 'articles');
-
-export function getAllPostSlugs() {
-  return fs
-    .readdirSync(ARTICLES_PATH)
-    .filter((f) => f.endsWith('.mdx'))
-    .map((f) => f.replace(/\.mdx$/, ''));
-}
+const postsDirectory = path.join(process.cwd(), 'src/content/articles')
 
 export async function getPostBySlug(slug: string) {
-  const fullPath = path.join(ARTICLES_PATH, `${slug}.mdx`);
-  if (!fs.existsSync(fullPath)) return null;
+  const fullPath = path.join(postsDirectory, `${slug}.mdx`)
 
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-  const { data, content } = matter(fileContents);
-  const serialized = await serialize(content, { scope: data });
+  try {
+    const fileContents = fs.readFileSync(fullPath, 'utf8')
+    const { data: frontmatter, content } = matter(fileContents)
 
-  return {
-    ...serialized, // ✅ ini memberi compiledSource & scope
-    frontmatter: data,
-  };
+    const { content: compiledSource } = await compileMDX({
+      source: content,
+      options: {
+        parseFrontmatter: true,
+        mdxOptions: {
+          remarkPlugins: [remarkGfm],
+          rehypePlugins: [[rehypeRaw, { passThrough: ['mdxJsxFlowElement'] }]],
+        },
+      },
+    })
+
+    return {
+      compiledSource,
+      frontmatter,
+    }
+  } catch (error) {
+    return null
+  }
+}
+
+export function getAllPostSlugs() {
+  const fileNames = fs.readdirSync(postsDirectory)
+  return fileNames
+    .filter(fileName => fileName.endsWith('.mdx'))
+    .map(fileName => fileName.replace(/\.mdx$/, ''))
 }
