@@ -1,53 +1,54 @@
-import { getPostBySlug, getAllPostSlugs } from "@/utils/mdx";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { notFound } from "next/navigation";
-import VideoPlayer from "@/app/components/VideosPlayer";
-import mdxComponents from "@/app/components/mdx-components"
-
-
-const mdxComponents = {
-  VideoPlayer,
-};
+import React from "react"
+import { notFound } from "next/navigation"
+import { MDXRemote } from "next-mdx-remote/rsc"
+import { getPostBySlug, getAllPostSlugs } from "@/utils/mdx"
+import VideoPlayer from "@/app/components/VideosPlayer"
 
 export async function generateStaticParams() {
-  const slugs = getAllPostSlugs();
-  return slugs.map((slug) => ({ slug }));
+  const slugs = getAllPostSlugs()
+  return slugs.map((slug) => ({ slug }))
 }
 
-export default async function Page({ params }) {
-  const { slug } = await params;
-  const post = await getPostBySlug(slug);
+type Props = {
+  params: Promise<{ slug: string }>
+}
 
-  if (!post) notFound();
+export default async function ArticlePage({ params }: Props) {
+  const { slug } = await params
+  const post = await getPostBySlug(slug)
 
-  const { compiledSource, frontmatter } = post;
+  if (!post) {
+    notFound()
+  }
+
+  const { compiledSource, frontmatter } = post
 
   return (
-    <article className="prose mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">{frontmatter.title}</h1>
-      <p className="text-sm text-gray-500 mb-6">
-        {frontmatter.date} — {frontmatter.author}
-      </p>
+    <article className="py-10">
+      <div className="container">
+        <h1 className="text-4xl font-bold mb-3">{frontmatter.title}</h1>
+        <p className="text-gray-500 text-sm mb-6">
+          {frontmatter.date} — {frontmatter.author}
+        </p>
 
-      {frontmatter.image && (
-        <div className="rounded-xl overflow-hidden shadow mb-8">
-          <img src={frontmatter.image} alt={frontmatter.title} className="w-full object-cover"/>
+        {frontmatter.image && (
+          <img
+            src={frontmatter.image}
+            alt={frontmatter.title}
+            className="rounded-xl mb-6 w-full max-h-[400px] object-cover"
+          />
+        )}
+
+        <div className="prose dark:prose-invert max-w-none">
+          {/* casting ke any untuk menghindari error tipe TS sementara */}
+          <MDXRemote
+            source={compiledSource as any}
+            components={{
+              VideoPlayer,
+            }}
+          />
         </div>
-      )}
-
-      <div className="prose max-w-none">
-        <MDXRemote source={compiledSource} components={mdxComponents} />
-      </div>
-
-      {frontmatter.video && (
-        <div className="mt-8">
-          <video src={frontmatter.video} controls className="rounded-xl shadow-md w-full" />
-        </div>
-      )}
-
-      <div className="mt-12 border-t pt-6 text-sm text-gray-400">
-        <p>{frontmatter.description}</p>
       </div>
     </article>
-  );
+  )
 }

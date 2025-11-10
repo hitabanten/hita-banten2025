@@ -9,18 +9,30 @@ const font = Poppins({
   weight: ['400', '500', '600', '700'],
 })
 
+export const metadata = {
+  title: 'HITA Banten',
+  description: 'Himpunan IT Hotel Banten',
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <body className={`${font.className}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${font.className} bg-white text-gray-800`}>
+        
         <Header />
-        {children}
+
+        {/* Main Wrapper */}
+        <main className="container pt-10 pb-20">
+          {children}
+        </main>
+
         <Footer />
         <ScrollToTop />
+
       </body>
     </html>
   )
