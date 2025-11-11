@@ -87,6 +87,27 @@ html {
   @apply mb-5 leading-relaxed text-gray-700;
 }
 
+.prose {
+  @apply leading-relaxed text-gray-800;
+}
+
+.prose img {
+  @apply rounded-xl shadow-md my-6;
+}
+
+.prose h2, .prose h3 {
+  @apply text-gray-900 font-semibold mt-10 mb-4;
+}
+
+.prose a {
+  @apply text-primary hover:underline;
+}
+
+.prose strong {
+  @apply text-gray-900 font-semibold;
+}
+
+
 
 /* ======================================== */
 /* 💡 OPTIONAL: SMOOTH TRANSITION FOR UI    */

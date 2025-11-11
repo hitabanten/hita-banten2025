@@ -1,54 +1,79 @@
-import fs from 'fs'
-import path from 'path'
-import matter from 'gray-matter'
+import fs from "fs"
+import path from "path"
+import matter from "gray-matter"
 
-// Update path ke lokasi yang benar
-const ARTICLES_PATH = path.join(process.cwd(), 'src/content/articles')
+// 🗂 Lokasi folder artikel markdown
+const ARTICLES_PATH = path.join(process.cwd(), "src/content/articles")
 
+// 🧩 Tipe data metadata artikel
 export interface ArticleMetadata {
   title: string
   date: string
-  description: string
+  excerpt: string
   author: string
-  support_by?: string
+  image: string
   slug: string
-  image?: string
+  support_by?: string
+  description?: string
 }
 
-export function getArticleMetadata(): ArticleMetadata[] {
-  // Pastikan folder exists
+// 🧠 Ambil semua metadata artikel
+export function getAllArticles(): ArticleMetadata[] {
   if (!fs.existsSync(ARTICLES_PATH)) {
-    fs.mkdirSync(ARTICLES_PATH, { recursive: true })
+    console.warn(`⚠️ Folder artikel tidak ditemukan: ${ARTICLES_PATH}`)
     return []
   }
 
-  // 1. Dapatkan semua nama file di direktori
-  const fileNames = fs.readdirSync(ARTICLES_PATH)
+  const files = fs.readdirSync(ARTICLES_PATH)
 
-  // 2. Filter hanya file .mdx
-  const mdxFiles = fileNames.filter((fileName) => fileName.endsWith('.mdx'))
+  const articles = files
+    .filter((file) => file.endsWith(".md") || file.endsWith(".mdx"))
+    .map((fileName) => {
+      const filePath = path.join(ARTICLES_PATH, fileName)
+      const fileContent = fs.readFileSync(filePath, "utf8")
 
-  // 3. Baca metadata dari setiap file
-  const articles = mdxFiles.map((fileName) => {
-    const filePath = path.join(ARTICLES_PATH, fileName)
-    const fileContent = fs.readFileSync(filePath, 'utf8')
-    const { data } = matter(fileContent)
+      const { data } = matter(fileContent)
+      const slug = fileName.replace(/\.mdx?$/, "")
 
-    return {
-      title: data.title,
-      date: data.date,
-      description: data.description,
-      author: data.author,
-      support_by: data.support_by,
-      slug: fileName.replace('.mdx', ''),
-      image: data.image,
-    }
-  })
+      return {
+        title: data.title ?? "Untitled",
+        date: data.date ?? "",
+        excerpt: data.excerpt || data.description || "",
+        author: data.author ?? "Unknown",
+        image: data.image ?? "/default-article.jpg",
+        slug,
+        support_by: data.support_by ?? "",
+        description: data.description ?? "",
+      } satisfies ArticleMetadata
+    })
+    // Urutkan dari terbaru ke lama
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-  // 4. Urutkan berdasarkan tanggal terbaru
-  return articles.sort((a, b) => {
-    const dateA = new Date(a.date)
-    const dateB = new Date(b.date)
-    return dateB.getTime() - dateA.getTime()
-  })
+  return articles
+}
+
+// ✅ Kompatibilitas (jika masih ada kode lama yang pakai nama ini)
+export function getArticleMetadata(): ArticleMetadata[] {
+  return getAllArticles()
+}
+
+// 🔍 Fungsi tambahan: ambil artikel lengkap (termasuk content)
+export function getArticleBySlug(slug: string) {
+  const filePath = path.join(ARTICLES_PATH, `${slug}.mdx`)
+  if (!fs.existsSync(filePath)) return null
+
+  const fileContent = fs.readFileSync(filePath, "utf8")
+  const { data, content } = matter(fileContent)
+
+  return {
+    frontmatter: {
+      title: data.title ?? "Untitled",
+      date: data.date ?? "",
+      author: data.author ?? "Unknown",
+      image: data.image ?? "/default-article.jpg",
+      support_by: data.support_by ?? "",
+      description: data.description ?? "",
+    },
+    content,
+  }
 }
