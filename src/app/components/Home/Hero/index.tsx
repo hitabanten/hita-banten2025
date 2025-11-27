@@ -78,7 +78,7 @@ const   Hero = () => {
           </div>
           <div className='col-span-6 flex justify-center'>
             <Image
-              src='/images/banner/yadi.webp'
+              src='/images/banner/salaman2.png'
               alt='nothing'
               width={1000}
               height={805}

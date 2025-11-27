@@ -11,7 +11,7 @@ const font = Poppins({
 
 export const metadata = {
   title: 'HITA Banten',
-  description: 'Himpunan IT Hotel Banten',
+  description: ' Hotel Information Technology Association - Chapter Banten.',
 }
 
 export default function RootLayout({
