@@ -22,7 +22,7 @@ const Blog: React.FC<BlogProps> = ({ articles }) => {
 
     // Jika articles.length < 3, kita mungkin tidak ingin infinite loop/slider
     infinite: articles.length > 3,
-    slidesToShow: 10,
+    slidesToShow: 3,
     slidesToScroll: 2,
     arrows: false,
     autoplay: true,
