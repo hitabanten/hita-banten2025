@@ -22,8 +22,8 @@ const Blog: React.FC<BlogProps> = ({ articles }) => {
 
     // Jika articles.length < 3, kita mungkin tidak ingin infinite loop/slider
     infinite: articles.length > 3,
-    slidesToShow: 3,
-    slidesToScroll: 1,
+    slidesToShow: 10,
+    slidesToScroll: 2,
     arrows: false,
     autoplay: true,
     speed: 500,
@@ -50,11 +50,11 @@ const Blog: React.FC<BlogProps> = ({ articles }) => {
           <h2 className="text-midnight_text mb-5 sm:mb-0 text-3xl font-bold">
             Latest Articles
           </h2>
-          <Link
+         {/* <Link
             href="/blog"
             className="text-primary text-lg font-medium hover:underline duration-500">
             View All Articles&nbsp;&gt;
-          </Link>
+          </Link>  */}
         </div>
 
         {/* Tambahkan key unik jika perlu di map function, tapi di sini kita pakai index karena data dari MDX kemungkinan tidak punya 'id' */}
