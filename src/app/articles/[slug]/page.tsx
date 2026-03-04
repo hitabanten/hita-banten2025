@@ -2,6 +2,9 @@ import { notFound } from "next/navigation"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import { getAllArticles, getArticleBySlug } from "@/utils/articles"
 import VideoPlayer from "@/app/components/VideosPlayer"
+import Image from "next/image";
+
+
 
 // ✅ Generate semua slug untuk build static
 export async function generateStaticParams() {
@@ -47,6 +50,8 @@ export default async function ArticlePage(props: {
               }}
             />
           </div>
+
+
         </article>
       </div>
     </section>
